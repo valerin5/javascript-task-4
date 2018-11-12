@@ -15,16 +15,23 @@ function getEmitter() {
 
     function parseEvent(event) {
         const substrings = event.split('.');
+        console.info(substrings);
+        const newEvent = substrings.reduce((accum, substr) => {
+            console.info(accum);
+            if (accum[0] === undefined) {
+                return [substr];
+            }
+            accum.unshift(accum[0] + '.' + substr);
 
-        /* const newEvent = substrings.reduce((accum, substr) => {
-            return accum.unshift(accum[0] + '.' + substr);
-        }, ['']);
-*/
-        for (let i = 1; i < substrings.length; i++) {
+            return accum;
+        }, []);
+
+        /* for (let i = 1; i < substrings.length; i++) {
             substrings[i] = substrings[i - 1] + '.' + substrings[i];
         }
 
-        return substrings.reverse();
+        return substrings.reverse();*/
+        return newEvent;
     }
 
     return {
@@ -60,13 +67,6 @@ function getEmitter() {
                 }
             });
 
-            /* for (let changeEvent in events) {
-                if (changeEvent.startsWith(startPointEvent) || changeEvent === event) {
-                    events[changeEvent] = events[changeEvent]
-                        .filter(person => person.context !== context);
-                }
-            }*/
-
             return this;
         },
 
@@ -77,6 +77,7 @@ function getEmitter() {
 
         emit: function (event) {
             const emitEvent = parseEvent(event);
+            // console.info(emitEvent);
             emitEvent.forEach(callEvent => {
                 if (events.hasOwnProperty(callEvent)) {
                     events[callEvent].map(person => person.handler.call(person.context));
