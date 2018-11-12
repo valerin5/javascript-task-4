@@ -15,9 +15,7 @@ function getEmitter() {
 
     function parseEvent(event) {
         const substrings = event.split('.');
-        console.info(substrings);
         const newEvent = substrings.reduce((accum, substr) => {
-            console.info(accum);
             if (accum[0] === undefined) {
                 return [substr];
             }
@@ -26,11 +24,6 @@ function getEmitter() {
             return accum;
         }, []);
 
-        /* for (let i = 1; i < substrings.length; i++) {
-            substrings[i] = substrings[i - 1] + '.' + substrings[i];
-        }
-
-        return substrings.reverse();*/
         return newEvent;
     }
 
@@ -77,7 +70,6 @@ function getEmitter() {
 
         emit: function (event) {
             const emitEvent = parseEvent(event);
-            // console.info(emitEvent);
             emitEvent.forEach(callEvent => {
                 if (events.hasOwnProperty(callEvent)) {
                     events[callEvent].map(person => person.handler.call(person.context));
