@@ -11,15 +11,20 @@ const isStar = true;
  * @returns {Object}
  */
 function getEmitter() {
-    let events = {};
+    const events = {};
 
     function parseEvent(event) {
-        let substrings = event.split('.');
+        const substrings = event.split('.');
+
+        /* const newEvent = substrings.reduce((accum, substr) => {
+            return accum.unshift(accum[0] + '.' + substr);
+        }, ['']);
+*/
         for (let i = 1; i < substrings.length; i++) {
             substrings[i] = substrings[i - 1] + '.' + substrings[i];
         }
 
-        return (substrings.reverse());
+        return substrings.reverse();
     }
 
     return {
@@ -32,7 +37,7 @@ function getEmitter() {
          */
 
         on: function (event, context, handler) {
-            if (events[event] === undefined) {
+            if (!events.hasOwnProperty(event)) {
                 events[event] = [];
             }
             events[event].push({ context, handler });
@@ -47,12 +52,20 @@ function getEmitter() {
          */
 
         off: function (event, context) {
-            for (let changeEvent in events) {
-                if (changeEvent.startsWith(event + '.') || changeEvent === event) {
+            const startPointEvent = event + '.';
+            Object.keys(events).forEach(changeEvent => {
+                if (changeEvent.startsWith(startPointEvent) || changeEvent === event) {
                     events[changeEvent] = events[changeEvent]
                         .filter(person => person.context !== context);
                 }
-            }
+            });
+
+            /* for (let changeEvent in events) {
+                if (changeEvent.startsWith(startPointEvent) || changeEvent === event) {
+                    events[changeEvent] = events[changeEvent]
+                        .filter(person => person.context !== context);
+                }
+            }*/
 
             return this;
         },
@@ -63,9 +76,9 @@ function getEmitter() {
          */
 
         emit: function (event) {
-            let emitEvent = parseEvent(event);
+            const emitEvent = parseEvent(event);
             emitEvent.forEach(callEvent => {
-                if (events[callEvent] !== undefined) {
+                if (events.hasOwnProperty(callEvent)) {
                     events[callEvent].map(person => person.handler.call(person.context));
                 }
             });
