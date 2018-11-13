@@ -98,19 +98,6 @@ function getEmitter() {
 
             });
 
-            /* if (times <= 0) {
-                this.on(event, context, handler);
-
-                return this;
-            }
-            let callCount = 0;
-            this.on(event, context, function () {
-                if (callCount < times) {
-                    handler.call(context);
-                    callCount++;
-                }
-            }); */
-
             return this;
         },
 
@@ -124,18 +111,13 @@ function getEmitter() {
          */
 
         through: function (event, context, handler, frequency) {
-            if (frequency <= 0) {
-                this.on(event, context, handler);
-
-                return this;
-            }
-
             let callCount = 0;
-            this.on(event, context, function () {
+            this.on(event, context, frequency <= 0 ? handler : function () {
                 if (callCount % frequency === 0) {
                     handler.call(context);
                 }
-                callCount = ++callCount;
+                callCount++;
+
             });
 
             return this;
