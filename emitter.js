@@ -16,7 +16,7 @@ function getEmitter() {
     function parseEvent(event) {
         const substrings = event.split('.');
         const newEvent = substrings.reduce((accum, substr) => {
-            if (accum[0] === undefined) {
+            if (accum.length === 0) {
                 return [substr];
             }
             accum.unshift(accum[0] + '.' + substr);
@@ -54,7 +54,7 @@ function getEmitter() {
         off: function (event, context) {
             const startPointEvent = event + '.';
             Object.keys(events).forEach(changeEvent => {
-                if (changeEvent.startsWith(startPointEvent) || changeEvent === event) {
+                if (changeEvent === event || changeEvent.startsWith(startPointEvent)) {
                     events[changeEvent] = events[changeEvent]
                         .filter(person => person.context !== context);
                 }
@@ -89,7 +89,16 @@ function getEmitter() {
          */
 
         several: function (event, context, handler, times) {
-            if (times <= 0) {
+            let callCount = 0;
+            this.on(event, context, times <= 0 ? handler : function () {
+                if (callCount < times) {
+                    handler.call(context);
+                    callCount++;
+                }
+
+            });
+
+            /* if (times <= 0) {
                 this.on(event, context, handler);
 
                 return this;
@@ -98,9 +107,9 @@ function getEmitter() {
             this.on(event, context, function () {
                 if (callCount < times) {
                     handler.call(context);
-                    callCount = ++callCount;
+                    callCount++;
                 }
-            });
+            }); */
 
             return this;
         },
